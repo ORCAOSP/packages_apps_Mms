@@ -51,6 +51,7 @@ import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 import android.widget.Toast;
 import com.android.mms.LogTag;
+import com.android.mms.MmsConfig;
 import com.android.mms.R;
 import com.android.mms.data.Contact;
 import com.android.mms.data.Conversation;
@@ -782,6 +783,9 @@ public class MessagingNotification {
             Bitmap attachmentBitmap,
             Contact contact,
             int attachmentType) {
+        if (MmsConfig.isSuppressedSprintVVM(address)) {
+            return null;
+        }
         Intent clickIntent = ComposeMessageActivity.createIntent(context, threadId);
         clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -793,7 +797,6 @@ public class MessagingNotification {
                 0, senderInfo.length() - 2);
         CharSequence ticker = buildTickerMessage(
                 context, address, subject, message);
-
         return new NotificationInfo(isSms,
                 clickIntent, message, subject, ticker, timeMillis,
                 senderInfoName, attachmentBitmap, contact, attachmentType, threadId);
@@ -920,7 +923,12 @@ public class MessagingNotification {
             taskStackBuilder.addNextIntent(mostRecentNotification.mClickIntent);
         }
         // Always have to set the small icon or the notification is ignored
-        noti.setSmallIcon(R.drawable.stat_notify_sms);
+        if (Settings.System.getInt(context.getContentResolver(),
+                Settings.System.MMS_BREATH, 0) == 1) {
+               noti.setSmallIcon(R.drawable.stat_notify_sms_breath);
+           } else {    
+               noti.setSmallIcon(R.drawable.stat_notify_sms);
+        }
 
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -957,7 +965,12 @@ public class MessagingNotification {
                 vibrate = "always".equals(vibrateWhen);
             }
             if (vibrate) {
-                defaults |= Notification.DEFAULT_VIBRATE;
+                if (customVibration == null) {
+                    defaults |= Notification.DEFAULT_VIBRATE;
+                }
+                else {
+                    noti.setVibrate(customVibration);
+                }
             }
 
             String ringtoneStr = sp.getString(MessagingPreferenceActivity.NOTIFICATION_RINGTONE,
