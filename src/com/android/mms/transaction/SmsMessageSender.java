@@ -17,12 +17,6 @@
 
 package com.android.mms.transaction;
 
-import com.android.mms.LogTag;
-import com.android.mms.MmsConfig;
-import com.android.mms.ui.MessagingPreferenceActivity;
-import com.google.android.mms.MmsException;
-import android.database.sqlite.SqliteWrapper;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,13 +27,13 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Telephony.Sms;
 import android.provider.Telephony.Sms.Inbox;
+import android.telephony.SmsMessage;
 import android.util.Log;
 
 import com.android.mms.LogTag;
+import com.android.mms.MmsConfig;
 import com.android.mms.ui.MessagingPreferenceActivity;
 import com.google.android.mms.MmsException;
-import android.telephony.SmsMessage;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -149,17 +143,17 @@ public class SmsMessageSender implements MessageSender {
                     Log.v(TAG, "queueMessage mDests[i]: " + mDests[i] + " mThreadId: " + mThreadId);
                 }
                 Sms.addMessageToUri(mContext.getContentResolver(),
-                        Uri.parse("content://sms/queued"), mDests[i],
-                        mMessageText, null, mTimestamp,
-                        true /* read */,
-                        requestDeliveryReport,
-                        mThreadId);
-            } catch (SQLiteException e) {
-                if (LogTag.DEBUG_SEND) {
-                    Log.e(TAG, "queueMessage SQLiteException", e);
+                    Uri.parse("content://sms/queued"), mDests[i],
+                    mMessageText, null, mTimestamp,
+                    true /* read */,
+                    requestDeliveryReport,
+                    mThreadId);
+                } catch (SQLiteException e) {
+                    if (LogTag.DEBUG_SEND) {
+                        Log.e(TAG, "queueMessage SQLiteException", e);
+                    }
+                    SqliteWrapper.checkSQLiteException(mContext, e);
                 }
-                SqliteWrapper.checkSQLiteException(mContext, e);
-               }
             }
         }
         // Notify the SmsReceiverService to send the message out

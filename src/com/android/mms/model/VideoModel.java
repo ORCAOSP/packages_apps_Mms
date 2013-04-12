@@ -70,8 +70,7 @@ public class VideoModel extends RegionMediaModel {
     }
 
     private void initFromFile(Uri uri) {
-        String path = uri.getPath();
-        mSrc = path.substring(path.lastIndexOf('/') + 1);
+        mSrc = uri.getPath();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         String extension = MimeTypeMap.getFileExtensionFromUrl(mSrc);
         if (TextUtils.isEmpty(extension)) {

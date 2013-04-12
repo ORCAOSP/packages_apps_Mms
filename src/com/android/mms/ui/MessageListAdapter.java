@@ -41,7 +41,6 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import com.android.mms.R;
-import com.android.mms.themes.ThemesMessageList;
 import com.google.android.mms.MmsException;
 
 /**
@@ -125,7 +124,8 @@ public class MessageListAdapter extends CursorAdapter {
     private Pattern mHighlight;
     private Context mContext;
     private boolean mIsGroupConversation;
-    private SharedPreferences sp;
+    private boolean mFullTimestamp;
+    private boolean mSentTimestamp;
 
     public MessageListAdapter(
             Context context, Cursor c, ListView listView,
@@ -143,6 +143,10 @@ public class MessageListAdapter extends CursorAdapter {
         } else {
             mColumnsMap = new ColumnsMap(c);
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        mFullTimestamp = prefs.getBoolean(MessagingPreferenceActivity.FULL_TIMESTAMP, false);
+        mSentTimestamp = prefs.getBoolean(MessagingPreferenceActivity.SENT_TIMESTAMP, false);
 
         listView.setRecyclerListener(new AbsListView.RecyclerListener() {
             @Override
@@ -221,47 +225,10 @@ public class MessageListAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         int boxType = getItemViewType(cursor);
-        mContext = context;
-        sp = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String layoutType = sp.getString(ThemesMessageList.PREF_TEXT_CONV_LAYOUT, "**DEFAULT**");
-        View view;
-
-        if (sp.getBoolean(ThemesMessageList.PREF_SHOW_AVATAR, true)) {
-            if (layoutType.equals("**LAYOUTFROMLEFT**")) {
-                view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
-                        boxType == INCOMING_ITEM_TYPE_MMS) ?
-                        R.layout.message_list_item_recv :
-                        R.layout.message_list_item_send_left, parent, false);
-            } else if (layoutType.equals("**LAYOUTFROMRIGHT**")) {
-                view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
-                        boxType == INCOMING_ITEM_TYPE_MMS) ?
-                        R.layout.message_list_item_recv_right :
-                        R.layout.message_list_item_send, parent, false);
-            } else {
-                view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
-                        boxType == INCOMING_ITEM_TYPE_MMS) ?
-                        R.layout.message_list_item_recv :
-                        R.layout.message_list_item_send, parent, false);
-            }
-        } else {
-            if (layoutType.equals("**LAYOUTFROMLEFT**")) {
-                view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
-                        boxType == INCOMING_ITEM_TYPE_MMS) ?
-                        R.layout.message_list_item_recv_noavatar :
-                        R.layout.message_list_item_send_left_noavatar, parent, false);
-            } else if (layoutType.equals("**LAYOUTFROMRIGHT**")) {
-                view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
-                        boxType == INCOMING_ITEM_TYPE_MMS) ?
-                        R.layout.message_list_item_recv_right_noavatar :
-                        R.layout.message_list_item_send_noavatar, parent, false);
-            } else {
-                view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
-                        boxType == INCOMING_ITEM_TYPE_MMS) ?
-                        R.layout.message_list_item_recv_noavatar :
-                        R.layout.message_list_item_send_noavatar, parent, false);
-            }
-        }
-
+        View view = mInflater.inflate((boxType == INCOMING_ITEM_TYPE_SMS ||
+                boxType == INCOMING_ITEM_TYPE_MMS) ?
+                        R.layout.message_list_item_recv : R.layout.message_list_item_send,
+                        parent, false);
         if (boxType == INCOMING_ITEM_TYPE_MMS || boxType == OUTGOING_ITEM_TYPE_MMS) {
             // We've got an mms item, pre-inflate the mms portion of the view
             view.findViewById(R.id.mms_layout_view_stub).setVisibility(View.VISIBLE);
@@ -273,7 +240,7 @@ public class MessageListAdapter extends CursorAdapter {
         MessageItem item = mMessageItemCache.get(getKey(type, msgId));
         if (item == null && c != null && isCursorValid(c)) {
             try {
-                item = new MessageItem(mContext, type, c, mColumnsMap, mHighlight);
+                item = new MessageItem(mContext, type, c, mColumnsMap, mHighlight, mFullTimestamp, mSentTimestamp);
                 mMessageItemCache.put(getKey(item.mType, item.mMsgId), item);
             } catch (MmsException e) {
                 Log.e(TAG, "getCachedMessageItem: ", e);

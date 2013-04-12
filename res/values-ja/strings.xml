@@ -281,7 +281,7 @@
     <string name="save_ringtone" msgid="2310157075045201051">"着信音として保存"</string>
     <string name="saved_ringtone" msgid="3847363932276708626">"着信音を保存しました。"</string>
     <string name="saved_ringtone_fail" msgid="4778500070919251116">"着信音を保存できませんでした。"</string>
-    <string name="menu_insert_smiley" msgid="4964504393061025071">"顔文字を挿入"</string>
+    <string name="menu_insert_smiley" msgid="4964504393061025071">"絵文字を挿入"</string>
     <string name="menu_group_participants" msgid="4288356090262299071">"参加者をグループ化"</string>
     <string name="select_link_title" msgid="3371818607625768447">"操作の選択"</string>
     <string name="slide_number" msgid="1923958526266726635">"スライド<xliff:g id="NUMBER">%s</xliff:g>"</string>
@@ -343,64 +343,46 @@
     <string name="enumeration_comma" msgid="213598026698964628">"、 "</string>
     <string name="message_timestamp_format" msgid="4188999027493614617">"<xliff:g id="STRING_0">%1$s</xliff:g> - <xliff:g id="STRING_1">%2$s</xliff:g>"</string>
 
-    <!-- Settings screen, section heading for display-specific settings -->
-    <string name="pref_display_title">表示</string>
-
-    <!-- Settings item for boolean option to show the full datetime -->
-    <string name="pref_title_fulldate">完全な日付を表示</string>
-    <string name="pref_summary_fulldate">メッセージに完全な日付を表示する</string>
-    <!-- Settings item for boolean option to show the call back button in the quick reply notification -->
-    <string name="pref_title_quickreply_callbutton">電話ボタンを表示</string>
-    <string name="pref_summary_quickreply_callbutton">クイックリプライ通知に電話ボタンを表示する</string>
-    <!-- Settings item for boolean option to show the sms reply button in the quick reply notification -->
-    <string name="pref_title_quickreply_sms_reply">SMS返信ボタンを表示</string>
-    <string name="pref_summary_quickreply_sms_reply">クイックリプライ通知にSMS返信ボタンを表示する</string>
-    <!-- Settings item for boolean option to show the delete button in the quick reply notification -->
-    <string name="pref_title_quickreply_delete">削除ボタンを表示</string>
-    <string name="pref_summary_quickreply_delete">クイックリプライ通知にメッセージ削除ボタンを表示する</string>
-    <!-- Settings item for boolean option to show the mark read button in the quick reply notification -->
-    <string name="pref_title_quickreply_mark_read">既読ボタンを表示</string>
-    <string name="pref_summary_quickreply_mark_read">クイックリプライ通知に既読ボタンを表示する</string>
-
-    <!-- Menu item  [CHAR LIMIT=40] -->
-    <string name="menu_insert_emoji">絵文字を挿入</string>
-
-    <!-- Settings item for boolean option for SMS Split Counter -->
+   <!-- Cyanogenmod Extra entries -->
     <string name="pref_title_sms_split_counter">分割カウンタ</string>
-    <!-- Settings item description for boolean SMS Split 160 characters setting -->
     <string name="pref_summary_sms_split_counter">メッセージに分割数のカウンタを追加する。例: (1/2)</string>
-
-    <!-- Extra Settings: -->
+    <string name="menu_insert_emoji">絵文字を挿入</string>
+    <string name="prefs_templates_settings">SMSテンプレート</string>
+    <string name="pref_title_templates_manage">テンプレート</string>
+    <string name="pref_summary_templates_manage">SMSテンプレートの管理</string>
+    <string name="pref_title_templates_show_gesture">ジェスチャー</string>
+    <string name="pref_summary_templates_show_gesture">ジェスチャーの軌跡を表示</string>
+    <string name="pref_title_template_gestures_sensitivity">ジェスチャーの感度</string>
+    <string name="template_save">保存</string>
+    <string name="template_insert_hint">テンプレートテキストを挿入</string>
+    <string name="template_empty_text">テキストフィールドは空にできません</string>
+    <string name="template_explanation">テンプレートテキストを挿入あるいは編集し、必要であればジェスチャーを描いて定義します</string>
+    <string name="template_edit">編集</string>
+    <string name="template_delete">削除</string>
+    <string name="template_ctx_menu_title">アクション</string>
+    <string name="template_list_title">テンプレート</string>
+    <string name="template_new_title">新規テンプレート</string>
+    <string name="template_insert">テンプレートを挿入</string>
+    <string name="template_gesture_draw">下のスペースにジェスチャーを描いてください</string>
+    <string name="template_not_present_error">テンプレートは定義されてません</string>
+    <string name="template_not_present_error_title">エラー</string>
+    <string name="template_select">テンプレートを選択</string>
+    <string name="template_cancel_confirm_title">警告</string>
+    <string name="template_cancel_confirm_text">テンプレートは削除されます. 続けますか?</string>
+    <string name="gestures_already_present">警告: 他のテンプレートに似たようなジェスチャーが設定されています!</string>
     <string name="pref_extra_settings">拡張設定</string>
-
-    <!-- Enable emojis -->
+    <string name="pref_title_strip_unicode">ユニコードを取り除く</string>
+    <string name="pref_summary_strip_unicode">160文字のSMSメッセージでサポートされない一般的な文字を置き換える</string>
     <string name="pref_title_enable_emojis">絵文字サポート</string>
     <string name="pref_summary_enable_emojis">ユニコード絵文字サポートを有効にする, 471個のステキな絵文字</string>
-    <string name="pref_title_pref_key_emojis_quick">クイック絵文字ボタン</string>
-    <string name="pref_summary_pref_key_emojis_quick">絵文字を素早く入力するためにテキスト入力エリアの左側に絵文字ボタンを配置する</string>
-
-    <!-- Quick Reply -->
-    <string name="quick_call_back">電話する</string>
-    <string name="quick_call_back_short">電話</string>
-    <string name="quick_reply_sms">返信する</string>
-    <string name="quick_reply_sms_short">返信</string>
-    <string name="quick_reply_delete">削除する</string>
-    <string name="quick_reply_delete_short">削除</string>
-    <string name="quick_reply_mark_read">既読にする</string>
-    <string name="quick_reply_mark_read_short">既読</string>
-    <string name="quick_reply_sending">送信しています</string>
-    <string name="qr_alert_title">送信されませんでした</string>
-    <string name="qr_alert_message">メッセージをキャンセルしますか？</string>
-    <string name="qr_alert_yes">はい</string>
-    <string name="qr_alert_no">いいえ</string>
-    <string name="qr_alert_read">既読にする</string>
-    <string name="qr_mark_read">既読にして閉じる</string>
-    <string name="qr_pick_smiley">顔文字を挿入</string>
-    <string name="qr_pick_emoji">絵文字を挿入</string>
-    <string name="qr_close_popup">閉じる</string>
-    <string name="qr_multi_ask">誰に返信しますか？</string>
-    <string name="quick_reply_hint">メッセージを入力</string>
-    <string name="only_three_please">3つまでしか選択できません</string>
-    <string name="pref_title_quick_reply">クイックリプライ</string>
-
+    <string name="pref_title_mms_full_timestamp">完全なタイムスタンプ</string>
+    <string name="pref_summary_mms_full_timestamp">タイムスタンプに日付と時刻の両方を表示する</string>
+    <string name="pref_title_mms_use_sent_timestamp">送信時刻表示</string>
+    <string name="pref_summary_mms_use_sent_timestamp">着信時刻の代わりに送信時刻を表示する</string>
+    <string name="pref_title_mms_notification_vibrate_pattern">振動パターン</string>
+    <string name="pref_summary_mms_notification_vibrate_pattern">振動パターンを変更する</string>
+    <string name="pref_title_mms_notification_vibrate_call">着信時に振動</string>
+    <string name="pref_summary_mms_notification_vibrate_call">着信中に振動を許可する</string>
+    <string name="pref_title_mms_notification_vibrate_custom">カスタム振動パターン</string>
+    <string name="pref_text_mms_notification_vibrate_custom">オフ/オンをミリ秒で記述: オフ, オン, オフ, オン, ...</string>
 </resources>

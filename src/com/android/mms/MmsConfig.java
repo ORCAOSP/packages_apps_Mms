@@ -43,7 +43,7 @@ public class MmsConfig {
      * Whether to hide MMS functionality from the user (i.e. SMS only).
      */
     private static boolean mTransIdEnabled = false;
-    private static boolean mMmsEnabled = true;                         // default to true
+    private static boolean mMmsEnabled = true;                  // default to true
     private static int mMaxMessageSize = 300 * 1024;            // default to 300k max size
     private static String mUserAgent = DEFAULT_USER_AGENT;
     private static String mUaProfTagName = DEFAULT_HTTP_KEY_X_WAP_PROFILE;
@@ -69,13 +69,7 @@ public class MmsConfig {
     // than a single segment (i.e. 140 chars), then the message will turn into and be sent
     // as an mms message. This feature exists for carriers that don't support multi-part sms's.
     private static boolean mEnableMultipartSMS = true;
-
-    // If mEnableMultipartSMS is true and mSmsToMmsTextThreshold > 1, then multi-part SMS messages
-    // will be converted into a single mms message. For example, if the mms_config.xml file
-    // specifies <int name="smsToMmsTextThreshold">4</int>, then on the 5th sms segment, the
-    // message will be converted to an mms.
-    private static int mSmsToMmsTextThreshold = -1;
-
+    
     // By default, the radio splits multipart sms, not the application. If the carrier or radio
     // does not support this, and the recipient gets garbled text, set this to true. If this is
     // true and mEnableMultipartSMS is false, the mSmsToMmsTextThreshold will be observed,
@@ -84,6 +78,12 @@ public class MmsConfig {
 
     // Support to hide sprint VVM's 9016 text mesages.
     private static boolean mEnableSprintVVM = false;
+
+    // If mEnableMultipartSMS is true and mSmsToMmsTextThreshold > 1, then multi-part SMS messages
+    // will be converted into a single mms message. For example, if the mms_config.xml file
+    // specifies <int name="smsToMmsTextThreshold">4</int>, then on the 5th sms segment, the
+    // message will be converted to an mms.
+    private static int mSmsToMmsTextThreshold = -1;
 
     private static boolean mEnableSlideDuration = true;
     private static boolean mEnableMMSReadReports = true;        // key: "enableMMSReadReports"

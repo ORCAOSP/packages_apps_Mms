@@ -1,22 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-/*
- * Copyright (C) 2007-2008 Esmertec AG.
- * Copyright (C) 2007-2008 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
- -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007-2008 Esmertec AG
+     Copyright (C) 2007-2008 The Android Open Source Project
+     Copyright (C) 2013 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -156,7 +154,6 @@
     <string name="pref_mms_settings_title" msgid="55618772118264355">"彩信 (MMS)"</string>
     <string name="pref_sms_settings_title" msgid="5173078369851066881">"短信 (SMS)"</string>
     <string name="pref_sms_storage_title" msgid="9001233319190616445">"存储"</string>
-    <string name="pref_display_title">显示</string>
     <string name="pref_summary_manage_sim_messages" msgid="4141349892597640864">"管理 SIM 卡中存储的信息"</string>
     <string name="pref_summary_mms_delivery_reports" msgid="4874657984217756112">"要求每次发送信息后都返回发送报告"</string>
     <string name="pref_summary_mms_read_reports" msgid="2748323864008907440">"要求每次发送信息后都返回已读回执"</string>
@@ -176,23 +173,12 @@
     <string name="pref_title_notification_vibrateWhen" msgid="4251208067092761057">"振动"</string>
     <string name="pref_title_notification_ringtone" msgid="8667533917574559659">"提示音"</string>
     <string name="pref_messages_to_save" msgid="3202539743892934926">"设置要保存的信息数量"</string>
-    <string name="pref_title_fulldate">显示完整日期</string>
-    <string name="pref_summary_fulldate">在信息后显示完整的日期</string>
-    <string name="pref_title_quickreply_callbutton">显示回拨按钮</string>
-    <string name="pref_summary_quickreply_callbutton">在信息通知栏显示回拨按钮</string>
-    <string name="pref_title_quickreply_sms_reply">显示快捷回复按钮</string>
-    <string name="pref_summary_quickreply_sms_reply">在信息通知栏显示快捷回复按钮</string>
-    <string name="pref_title_quickreply_delete">显示删除按钮</string>
-    <string name="pref_summary_quickreply_delete">在信息通知栏显示删除按钮</string>
-    <string name="pref_title_quickreply_mark_read">显示标记已读按钮</string>
-    <string name="pref_summary_quickreply_mark_read">在信息通知栏显示标记已读按钮</string>
+    <string name="silent_ringtone" msgid="7981237991326592780">"静音"</string>
   <string-array name="prefEntries_vibrateWhen">
     <item msgid="2520871831815631409">"始终"</item>
     <item msgid="6069709696037750627">"仅在静音时"</item>
     <item msgid="7486145357487111435">"永不"</item>
   </string-array>
-    <string name="prefDialogTitle_vibrateWhen" msgid="6419655771690242118">"振动"</string>
-    <string name="silent_ringtone" msgid="7981237991326592780">"静音"</string>
     <string name="pref_title_mms_auto_retrieval" msgid="4021878285474431355">"自动检索"</string>
     <string name="pref_summary_mms_auto_retrieval" msgid="925163257363757048">"自动检索信息"</string>
     <string name="pref_title_mms_retrieval_during_roaming" msgid="6016227402731817804">"漫游时自动检索"</string>
@@ -300,7 +286,6 @@
     <string name="saved_ringtone_fail" msgid="4778500070919251116">"无法保存铃声。"</string>
     <string name="menu_insert_smiley" msgid="4964504393061025071">"插入表情符号"</string>
     <string name="menu_group_participants" msgid="4288356090262299071">"群组参与者"</string>
-    <string name="menu_insert_emoji">插入 emoji 表情</string>
     <string name="select_link_title" msgid="3371818607625768447">"选择操作"</string>
     <string name="slide_number" msgid="1923958526266726635">"幻灯片 <xliff:g id="NUMBER">%s</xliff:g>"</string>
   <plurals name="slide_duration">
@@ -361,39 +346,138 @@
     <string name="enumeration_comma" msgid="213598026698964628">"、 "</string>
     <string name="message_timestamp_format" msgid="4188999027493614617">"<xliff:g id="STRING_0">%1$s</xliff:g> - <xliff:g id="STRING_1">%2$s</xliff:g>"</string>
 
-	<string name="pref_title_sms_split_counter">分割序号</string>
-	<string name="pref_summary_sms_split_counter">显示分割后的短信序号，例： (1/2)</string>
+    <!-- **** CYANOGENMOD ADDITIONS START **** -->
 
-	<!-- Extra Settings: -->
-	<string name="pref_extra_settings">其它设置</string>
+    <!-- Message options - Add SMS to calendar -->
+    <string name="menu_add_to_calendar">添加日历提醒</string>
 
-	<!-- Enable emojis -->
-	<string name="pref_title_enable_emojis">启用 emoji 表情</string>
-	<string name="pref_summary_enable_emojis">启用支持日本软银的emoji表情(unicode)，共 471 个</string>
-	<string name="pref_title_pref_key_emojis_quick">快捷 emoji 表情按钮</string>
-	<string name="pref_summary_pref_key_emojis_quick">在信息文本输入框左边显示快捷按钮</string>
+    <!-- QM - Dialog box buttons -->
+    <string name="button_close">关闭</string>
+    <string name="button_view">查看</string>
+    <string name="button_templates">模板</string>
 
-	<!-- Quick Reply -->
-	<string name="quick_call_back">回拨电话</string>
-	<string name="quick_call_back_short">回拨</string>
-	<string name="quick_reply_sms">快捷回复</string>
-	<string name="quick_reply_sms_short">回复</string>
-    <string name="quick_reply_delete">删除信息</string>
-    <string name="quick_reply_delete_short">删除</string>
-    <string name="quick_reply_mark_read">标记已读</string>
-    <string name="quick_reply_mark_read_short">已读</string>
-	<string name="quick_reply_sending">发送快捷回复到</string>
-	<string name="qr_alert_title">未发送任何内容</string>
-	<string name="qr_alert_message">你确定要取消这条信息？</string>
-	<string name="qr_alert_yes">是</string>
-	<string name="qr_alert_no">否</string>
-	<string name="qr_alert_read">标记已读</string>
-	<string name="qr_mark_read">标记已读 &amp; 关闭</string>
-	<string name="qr_pick_smiley">插入表情</string>
-	<string name="qr_pick_emoji">插入 emoji 表情</string>
-	<string name="qr_close_popup">关闭</string>
-	<string name="qr_multi_ask">你想回复给谁？</string>
-	<string name="quick_reply_hint">键入信息</string>
-    <string name="only_three_please">一次只能选择三项</string>
-    <string name="pref_title_quick_reply">快捷回复</string>
+    <!-- QM - Hint text in message body field when keyboard is exposed -->
+    <string name="type_to_reply_text_enter_to_send">键入信息</string>
+
+    <!-- QM - Toast -->
+    <string name="toast_sending_message">信息发送中</string>
+
+    <!-- QM - Quick reply -->
+    <string name="qm_quick_reply">回复</string>
+    <string name="qm_mark_read">已读</string>
+
+    <!-- QM - Counter separator -->
+    <string name="message_counter_separator">/</string>
+
+
+    <!-- NOTIFICATIONS -->
+
+    <!-- Privacy mode -->
+    <string name="pref_title_notification_privacy_mode_enabled">隐私模式</string>
+    <string name="pref_summary_notification_privacy_mode_enabled">在信息通知内隐藏发件人与信息, 并同时禁用 \'快速回复\'</string>
+    <string name="notification_single_title_privacy_mode">新信息</string>
+    <string name="notification_single_text_privacy_mode">1 条未读信息</string>
+    <string name="notification_multiple_title_privacy_mode">新信息</string>
+    <string name="notification_multiple_text_privacy_mode"><xliff:g id="number" example="3">%1$s</xliff:g> 条未读信息</string>
+    <string name="notification_ticker_privacy_mode">收到了新信息</string>
+
+    <!-- Vibrate pattern -->
+    <string name="pref_title_mms_notification_vibrate_pattern">震动形式</string>
+    <string name="pref_summary_mms_notification_vibrate_pattern">更改震动形式</string>
+    <string name="pref_title_mms_notification_vibrate_custom">自定义震动形式</string>
+    <string name="pref_text_mms_notification_vibrate_custom">格式为关/开 (毫秒为单位): 关, 开, 关, 开/u2026</string>
+
+    <!-- Vibrate on call -->
+    <string name="pref_title_mms_notification_vibrate_call">通话时震动</string>
+    <string name="pref_summary_mms_notification_vibrate_call">允许通话时震动</string>
+
+
+    <!-- QUICKMESSAGE -->
+
+    <string name="pref_quickmessage">快速回复</string>
+
+    <!-- Use dark theme -->
+    <string name="pref_dark_theme_title">使用暗色主题</string>
+    <string name="pref_dark_theme_summary">如果未被选中，默认的 \'淡色\' 主题将会被使用</string>
+
+    <!-- Show pop-up -->
+    <string name="pref_quickmessage_title">显示弹出窗口</string>
+    <string name="pref_quickmessage_summary">收到短信时弹出快速信息对话框</string>
+
+    <!-- Wake and unlock -->
+    <string name="pref_wake_unlock_title">唤醒和解锁</string>
+    <string name="pref_wake_unlock_summary">收到消息时唤醒和解锁设备 (仅在非安全锁定屏幕时有效)</string>
+
+    <!-- Close all messages -->
+    <string name="pref_close_all_title">全部关闭</string>
+    <string name="pref_close_all_summary">\'关闭\' 按钮将关闭所有的消息</string>
+
+
+    <!-- SMS TEMPLATES -->
+
+    <string name="prefs_templates_settings">短信模板</string>
+
+    <!-- Manage SMS templates -->
+    <string name="pref_title_templates_manage">模板</string>
+    <string name="pref_summary_templates_manage">管理您的短信模板</string>
+    <string name="template_explanation">插入或修改模板文本并且可以画一个手势与它关联.</string>
+    <string name="template_insert_hint">在此输入模板文本</string>
+    <string name="template_empty_text">文本栏不能为空</string>
+    <string name="template_save">保存</string>
+    <string name="template_ctx_menu_title">动作</string>
+    <string name="template_edit">编辑</string>
+    <string name="template_delete">删除</string>
+    <string name="template_list_title">模板</string>
+    <string name="template_new_title">新建模板</string>
+    <string name="template_insert">插入模板</string>
+    <string name="template_gesture_draw">在下面的空白处画出您想关联的手势</string>
+    <string name="template_not_present_error">您没有定义任何模板</string>
+    <string name="template_not_present_error_title">错误</string>
+    <string name="template_select">选择一个模板</string>
+    <string name="template_cancel_confirm_title">警告</string>
+    <string name="template_cancel_confirm_text">这个模板将会被删除。您确定要继续？</string>
+    <string name="gestures_already_present">警告：一个相似的手势已关联了另一个模板！</string>
+
+    <!-- Show gesture trace -->
+    <string name="pref_title_templates_show_gesture">手势</string>
+    <string name="pref_summary_templates_show_gesture">显示手势轨迹</string>
+
+    <!-- Gesture sensitivity -->
+    <string name="pref_title_template_gestures_sensitivity">手势灵敏度</string>
+
+
+    <!-- EXTRA SETTINGS -->
+
+    <string name="pref_extra_settings">其他设置</string>
+
+    <!-- Strip unicode -->
+    <string name="pref_title_strip_unicode">除去 Unicode</string>
+    <string name="pref_summary_strip_unicode">在160字符短信内把不支持的字符替换掉</string>
+
+    <!-- Enable emojis -->
+    <string name="pref_title_enable_emojis">绘文字支持</string>
+    <string name="pref_summary_enable_emojis">开启绘文字 (一套471个视觉情感符号) 的支持</string>
+    <string name="menu_insert_emoji">插入绘文字</string>
+
+    <!-- Full timestamps -->
+    <string name="pref_title_mms_full_timestamp">完整时间戳</string>
+    <string name="pref_summary_mms_full_timestamp">在时间戳中显示日期和时间</string>
+
+    <!-- Original timestamps -->
+    <string name="pref_title_mms_use_sent_timestamp">原始时间戳</string>
+    <string name="pref_summary_mms_use_sent_timestamp">在时间戳中显示发送时间而不是接收时间</string>
+
+    <!-- Soft Keyboard Type -->
+    <string name="pref_title_input_type">软键盘样式</string>
+    <string name="pref_keyboard_emoji">显示表情符号按键</string>
+    <string name="pref_keyboard_new_line">显示回车键</string>
+    <string name="pref_keyboard_unknown">未知, 请重新选择</string>
+
+
+    <!-- Settings item for boolean option for SMS Split Counter -->
+    <string name="pref_title_sms_split_counter">分割编号</string>
+    <!-- Settings item description for boolean SMS Split 160 characters setting -->
+    <string name="pref_summary_sms_split_counter">在分割的消息中加入编号，例如：(1/2)</string>
+
+    <!-- **** CYANOGENMOD ADDITIONS END **** -->
 </resources>
