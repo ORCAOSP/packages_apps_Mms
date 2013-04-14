@@ -361,6 +361,7 @@ public class Conversation {
                     MessagingNotification.blockingUpdateAllNotifications(mContext,
                             MessagingNotification.THREAD_NONE);
                 }
+
                 return null;
             }
         }.execute();

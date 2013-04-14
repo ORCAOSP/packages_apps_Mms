@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2008 Esmertec AG.
  * Copyright (C) 2008 The Android Open Source Project
+ * QuickMessage (C) 2012 The CyanogenMod Project (DvTonder)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +48,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.provider.Telephony.Mms;
 import android.provider.Telephony.Sms;
 import android.telephony.TelephonyManager;
@@ -950,9 +953,10 @@ public class MessagingNotification {
             taskStackBuilder.addNextIntent(mostRecentNotification.mClickIntent);
         }
         // Always have to set the small icon or the notification is ignored
-        if (sp.getBoolean(MessagingPreferenceActivity.NOTIFICATION_BREATH, false)) {
+        if (Settings.System.getInt(context.getContentResolver(),
+                Settings.System.MMS_BREATH, 0) == 1) {
                noti.setSmallIcon(R.drawable.stat_notify_sms_breath);
-           } else {
+           } else {    
                noti.setSmallIcon(R.drawable.stat_notify_sms);
         }
 
@@ -1059,7 +1063,7 @@ public class MessagingNotification {
                 mrIntent.putExtra(QmMarkRead.SMS_THREAD_ID, mostRecentNotification.mThreadId);
                 PendingIntent mrPendingIntent = PendingIntent.getBroadcast(context, 0, mrIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
-                noti.addAction(R.drawable.ic_menu_done_holo_dark, markReadText, mrPendingIntent);
+                noti.addAction(R.drawable.ic_mark_read_holo_dark, markReadText, mrPendingIntent);
 
                 // Add the Call action
                 CharSequence callText = context.getText(R.string.menu_call);
