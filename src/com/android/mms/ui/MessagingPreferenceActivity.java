@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2007-2008 Esmertec AG.
  * Copyright (C) 2007-2008 The Android Open Source Project
- * QuickMessage: Copyright (C) 2012 The CyanogenMod Project (DvTonder)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +18,6 @@
 package com.android.mms.ui;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -27,21 +25,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.preference.RingtonePreference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.SearchRecentSuggestions;
+import android.text.InputType;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -66,8 +62,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
     public static final String PRIORITY                 = "pref_key_mms_priority";
     public static final String READ_REPORT_MODE         = "pref_key_mms_read_reports";
     public static final String SMS_DELIVERY_REPORT_MODE = "pref_key_sms_delivery_reports";
-    public static final String SMS_SPLIT_MESSAGE        = "pref_key_sms_split_160";
-    public static final String SMS_SPLIT_COUNTER        = "pref_key_sms_split_counter";
     public static final String NOTIFICATION_ENABLED     = "pref_key_enable_notifications";
     public static final String NOTIFICATION_VIBRATE     = "pref_key_vibrate";
     public static final String NOTIFICATION_VIBRATE_WHEN= "pref_key_vibrateWhen";
@@ -76,15 +70,34 @@ public class MessagingPreferenceActivity extends PreferenceActivity
     public static final String RETRIEVAL_DURING_ROAMING = "pref_key_mms_retrieval_during_roaming";
     public static final String AUTO_DELETE              = "pref_key_auto_delete";
     public static final String GROUP_MMS_MODE           = "pref_key_mms_group_mms";
+    public static final String MMS_SAVE_LOCATION        = "pref_save_location";
+    public static final String MSG_SIGNATURE            = "pref_msg_signature";
+
+    // Emoji
+    public static final String ENABLE_EMOJIS             = "pref_key_enable_emojis";
+    public static final String ENABLE_QUICK_EMOJIS       = "pref_key_enable_quick_emojis";
+    public static final String SOFTBANK_EMOJIS           = "pref_key_enable_softbank_encoding";
+
+    // Unicode
+    public static final String UNICODE_STRIPPING            = "pref_key_unicode_stripping";
+    public static final String UNICODE_STRIPPING_VALUE      = "pref_key_unicode_stripping_value";
+    public static final int UNICODE_STRIPPING_LEAVE_INTACT  = 0;
+    public static final int UNICODE_STRIPPING_NON_DECODABLE = 1;
+
+    // Split sms
+    public static final String SMS_SPLIT_COUNTER        = "pref_key_sms_split_counter";
+
+    // Templates
     public static final String MANAGE_TEMPLATES         = "pref_key_templates_manage";
     public static final String SHOW_GESTURE             = "pref_key_templates_show_gesture";
     public static final String GESTURE_SENSITIVITY      = "pref_key_templates_gestures_sensitivity";
-    public static final String GESTURE_SENSITIVITY_VALUE= "pref_key_templates_gestures_sensitivity_value";
-    public static final String STRIP_UNICODE            = "pref_key_strip_unicode";
-    public static final String ENABLE_EMOJIS            = "pref_key_enable_emojis";
-    public static final String ENABLE_QUICK_SMILEY_BTN  = "pref_key_quick_smiley_btn";
-    public static final String FULL_TIMESTAMP           = "pref_key_mms_full_timestamp";
-    public static final String SENT_TIMESTAMP           = "pref_key_mms_use_sent_timestamp";
+    public static final String GESTURE_SENSITIVITY_VALUE = "pref_key_templates_gestures_sensitivity_value";
+
+    // Timestamps
+    public static final String FULL_TIMESTAMP            = "pref_key_mms_full_timestamp";
+    public static final String SENT_TIMESTAMP            = "pref_key_mms_use_sent_timestamp";
+
+    // Vibrate pattern
     public static final String NOTIFICATION_VIBRATE_PATTERN = "pref_key_mms_notification_vibrate_pattern";
     public static final String NOTIFICATION_VIBRATE_PATTERN_CUSTOM = "pref_key_mms_notification_vibrate_pattern_custom";
     public static final String NOTIFICATION_VIBRATE_CALL ="pre_key_mms_notification_vibrate_call";
@@ -99,12 +112,14 @@ public class MessagingPreferenceActivity extends PreferenceActivity
     public static final String QUICKMESSAGE_ENABLED      = "pref_key_quickmessage";
     public static final String QM_LOCKSCREEN_ENABLED     = "pref_key_qm_lockscreen";
     public static final String QM_CLOSE_ALL_ENABLED      = "pref_key_close_all";
-    public static final String QM_DARK_THEME_ENABLED     = "pref_dark_theme";
 
-    private static final String DIRECT_CALL_PREF = "direct_call_pref";
+    private static final String DIRECT_CALL_PREF         = "direct_call_pref";
+    public static final String MESSAGE_FONT_SIZE         = "pref_key_mms_message_font_size";
 
     // Menu entries
-    private static final int MENU_RESTORE_DEFAULTS    = 1;
+    private static final int MENU_RESTORE_DEFAULTS       = 1;
+
+    private SharedPreferences sp;
 
     private Preference mSmsLimitPref;
     private Preference mSmsDeliveryReportPref;
@@ -115,31 +130,40 @@ public class MessagingPreferenceActivity extends PreferenceActivity
     private Preference mMmsReadReportPref;
     private Preference mManageSimPref;
     private Preference mClearHistoryPref;
-    private CheckBoxPreference mEnableMultipartSMS;
-    private Preference mSmsToMmsTextThreshold;
-    private CheckBoxPreference mVibratePref;
+    private ListPreference mVibrateWhenPref;
     private CheckBoxPreference mEnableNotificationsPref;
     private CheckBoxPreference mEnablePrivacyModePref;
     private CheckBoxPreference mMmsAutoRetrievialPref;
     private CheckBoxPreference mMmsRetrievalDuringRoamingPref;
-    private RingtonePreference mRingtonePref;
     private Recycler mSmsRecycler;
     private Recycler mMmsRecycler;
     private Preference mManageTemplate;
     private ListPreference mGestureSensitivity;
+    private ListPreference mUnicodeStripping;
+    private CharSequence[] mUnicodeStrippingEntries;
     private static final int CONFIRM_CLEAR_SEARCH_HISTORY_DIALOG = 3;
+    private CharSequence[] mVibrateEntries;
+    private CharSequence[] mVibrateValues;
+
+    // Keyboard input type
+    private ListPreference mInputTypePref;
+    private CharSequence[] mInputTypeEntries;
+    private CharSequence[] mInputTypeValues;
 
     // QuickMessage
     private CheckBoxPreference mEnableQuickMessagePref;
     private CheckBoxPreference mEnableQmLockscreenPref;
     private CheckBoxPreference mEnableQmCloseAllPref;
-    private CheckBoxPreference mEnableQmDarkThemePref;
 
     private CheckBoxPreference mDirectCall;
+
+    private EditTextPreference mSignature;
+    private String mSignatureText;
 
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         loadPrefs();
 
@@ -169,16 +193,18 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         mMmsReadReportPref = findPreference("pref_key_mms_read_reports");
         mMmsLimitPref = findPreference("pref_key_mms_delete_limit");
         mClearHistoryPref = findPreference("pref_key_mms_clear_history");
-    mDirectCall = (CheckBoxPreference) findPreference("direct_call_pref");
+        mDirectCall = (CheckBoxPreference) findPreference("direct_call_pref");
         mEnableNotificationsPref = (CheckBoxPreference) findPreference(NOTIFICATION_ENABLED);
         mEnablePrivacyModePref = (CheckBoxPreference) findPreference(PRIVACY_MODE_ENABLED);
-        mVibratePref = (CheckBoxPreference) findPreference(NOTIFICATION_VIBRATE);
-        mRingtonePref = (RingtonePreference) findPreference(NOTIFICATION_RINGTONE);
+        mVibrateWhenPref = (ListPreference) findPreference(NOTIFICATION_VIBRATE_WHEN);
         mManageTemplate = findPreference(MANAGE_TEMPLATES);
         mGestureSensitivity = (ListPreference) findPreference(GESTURE_SENSITIVITY);
+        mUnicodeStripping = (ListPreference) findPreference(UNICODE_STRIPPING);
+        mUnicodeStrippingEntries = getResources().getTextArray(R.array.pref_unicode_stripping_entries);
 
-        mEnableMultipartSMS = (CheckBoxPreference)findPreference("pref_key_sms_EnableMultipartSMS");
-        mSmsToMmsTextThreshold = findPreference("pref_key_sms_SmsToMmsTextThreshold");
+        mSignature = (EditTextPreference) findPreference(MSG_SIGNATURE);
+        mSignature.setOnPreferenceChangeListener(this);
+        mSignature.setText(sp.getString(MSG_SIGNATURE, ""));
 
         // Get the MMS retrieval settings. Defaults to enabled with roaming disabled
         mMmsAutoRetrievialPref = (CheckBoxPreference) findPreference(AUTO_RETRIEVAL);
@@ -189,12 +215,19 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         mMmsRetrievalDuringRoamingPref.setChecked(Settings.System.getInt(resolver,
                 Settings.System.MMS_AUTO_RETRIEVAL_ON_ROAMING, 0) == 1);
 
-
         // QuickMessage
         mEnableQuickMessagePref = (CheckBoxPreference) findPreference(QUICKMESSAGE_ENABLED);
         mEnableQmLockscreenPref = (CheckBoxPreference) findPreference(QM_LOCKSCREEN_ENABLED);
         mEnableQmCloseAllPref = (CheckBoxPreference) findPreference(QM_CLOSE_ALL_ENABLED);
-        mEnableQmDarkThemePref = (CheckBoxPreference) findPreference(QM_DARK_THEME_ENABLED);
+
+        // Keyboard input type
+        mInputTypePref = (ListPreference) findPreference(INPUT_TYPE);
+        mInputTypeEntries = getResources().getTextArray(R.array.pref_entries_input_type);
+        mInputTypeValues = getResources().getTextArray(R.array.pref_values_input_type);
+
+        // Vibration
+        mVibrateEntries = getResources().getTextArray(R.array.prefEntries_vibrateWhen);
+        mVibrateValues = getResources().getTextArray(R.array.prefValues_vibrateWhen);
 
         setMessagePreferences();
     }
@@ -262,9 +295,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
             }
         }
 
-        mEnableMultipartSMS.setChecked(!MmsConfig.getMultipartSmsEnabled());
-        mSmsToMmsTextThreshold.setDefaultValue(MmsConfig.getSmsToMmsTextThreshold()-1);
-
         setEnabledNotificationsPref();
 
         // Privacy mode
@@ -274,20 +304,15 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         setEnabledQuickMessagePref();
         setEnabledQmLockscreenPref();
         setEnabledQmCloseAllPref();
-        setEnabledQmDarkThemePref();
 
-        // If needed, migrate vibration setting from the previous tri-state setting stored in
-        // NOTIFICATION_VIBRATE_WHEN to the boolean setting stored in NOTIFICATION_VIBRATE.
+        // If needed, migrate vibration setting from a previous version
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.contains(NOTIFICATION_VIBRATE_WHEN)) {
-            String vibrateWhen = sharedPreferences.
-                    getString(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_WHEN, null);
-            boolean vibrate = "always".equals(vibrateWhen);
-            SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-            prefsEditor.putBoolean(NOTIFICATION_VIBRATE, vibrate);
-            prefsEditor.remove(NOTIFICATION_VIBRATE_WHEN);  // remove obsolete setting
-            prefsEditor.apply();
-            mVibratePref.setChecked(vibrate);
+        if (!sharedPreferences.contains(NOTIFICATION_VIBRATE_WHEN) &&
+                sharedPreferences.contains(NOTIFICATION_VIBRATE)) {
+            int stringId = sharedPreferences.getBoolean(NOTIFICATION_VIBRATE, false) ?
+                    R.string.prefDefault_vibrate_true :
+                    R.string.prefDefault_vibrate_false;
+            mVibrateWhenPref.setValue(getString(stringId));
         }
 
         mManageTemplate.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -301,16 +326,27 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         });
 
         String gestureSensitivity = String.valueOf(sharedPreferences.getInt(GESTURE_SENSITIVITY_VALUE, 3));
-
         mGestureSensitivity.setSummary(gestureSensitivity);
         mGestureSensitivity.setValue(gestureSensitivity);
         mGestureSensitivity.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 int value = Integer.parseInt((String) newValue);
                 sharedPreferences.edit().putInt(GESTURE_SENSITIVITY_VALUE, value).commit();
                 mGestureSensitivity.setSummary(String.valueOf(value));
+                return true;
+            }
+        });
+
+        int unicodeStripping = sharedPreferences.getInt(UNICODE_STRIPPING_VALUE, UNICODE_STRIPPING_LEAVE_INTACT);
+        mUnicodeStripping.setValue(String.valueOf(unicodeStripping));
+        mUnicodeStripping.setSummary(mUnicodeStrippingEntries[unicodeStripping]);
+        mUnicodeStripping.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                int value = Integer.parseInt((String) newValue);
+                sharedPreferences.edit().putInt(UNICODE_STRIPPING_VALUE, value).commit();
+                mUnicodeStripping.setSummary(mUnicodeStrippingEntries[value]);
                 return true;
             }
         });
@@ -322,18 +358,14 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         setSmsDisplayLimit();
         setMmsDisplayLimit();
 
-        // Fix up the sms to mms treshold
-        setSmsToMmsTextThreshold();
+        adjustVibrateSummary(mVibrateWhenPref.getValue());
 
-        String soundValue = sharedPreferences.getString(NOTIFICATION_RINGTONE, null);
-        setRingtoneSummary(soundValue);
-    }
-
-    private void setRingtoneSummary(String soundValue) {
-        Uri soundUri = TextUtils.isEmpty(soundValue) ? null : Uri.parse(soundValue);
-        Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(this, soundUri) : null;
-        mRingtonePref.setSummary(tone != null ? tone.getTitle(this)
-                : getResources().getString(R.string.silent_ringtone));
+        // Read the input type value and set the summary
+        String inputType = sharedPreferences.getString(MessagingPreferenceActivity.INPUT_TYPE,
+                Integer.toString(InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE));
+        mInputTypePref.setValue(inputType);
+        adjustInputTypeSummary(mInputTypePref.getValue());
+        mInputTypePref.setOnPreferenceChangeListener(this);
     }
 
     private void setEnabledNotificationsPref() {
@@ -351,10 +383,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         // Enable/Disable the "enable quickmessage" setting according to
         // the "enable privacy mode" setting state
         mEnableQuickMessagePref.setEnabled(!isPrivacyModeEnabled);
-
-        // Enable/Disable the "enable dark theme" setting according to
-        // the "enable privacy mode" setting state
-        mEnableQmDarkThemePref.setEnabled(!isPrivacyModeEnabled);
     }
 
     private void setEnabledQuickMessagePref() {
@@ -375,12 +403,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         mEnableQmCloseAllPref.setChecked(getQmCloseAllEnabled(this));
     }
 
-    private void setEnabledQmDarkThemePref() {
-        // The "Use dark theme" setting is really stored in our own prefs. Read the
-        // current value and set the checkbox to match.
-        mEnableQmDarkThemePref.setChecked(getQmDarkThemeEnabled(this));
-    }
-
     private void setSmsDisplayLimit() {
         mSmsLimitPref.setSummary(
                 getString(R.string.pref_summary_delete_limit,
@@ -391,12 +413,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         mMmsLimitPref.setSummary(
                 getString(R.string.pref_summary_delete_limit,
                         mMmsRecycler.getMessageLimit(this)));
-    }
-
-    private void setSmsToMmsTextThreshold() {
-        mSmsToMmsTextThreshold.setSummary(
-                getString(R.string.pref_summary_sms_SmsToMmsTextThreshold,
-                        MmsConfig.getSmsToMmsTextThreshold()-1));
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -441,14 +457,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
                     mMmsRecycler.getMessageMaxLimit(),
                     R.string.pref_title_mms_delete).show();
 
-        } else if (preference == mSmsToMmsTextThreshold) {
-            new NumberPickerDialog(this,
-                    mSmsToMmsTextThresholdListener,
-                    MmsConfig.getSmsToMmsTextThreshold()-1,
-                    MmsConfig.getSmsToMmsTextThresholdMin()-1,
-                    MmsConfig.getSmsToMmsTextThresholdMax()-1,
-                    R.string.pref_title_sms_SmsToMmsTextThreshold).show();
-
         } else if (preference == mManageSimPref) {
             startActivity(new Intent(this, ManageSimMessages.class));
 
@@ -459,23 +467,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         } else if (preference == mEnableNotificationsPref) {
             // Update the actual "enable notifications" value that is stored in secure settings.
             enableNotifications(mEnableNotificationsPref.isChecked(), this);
-        } else if (preference == mMmsRetrievalDuringRoamingPref) {
-            // Update the value in Settings.System
-            Settings.System.putInt(getContentResolver(), Settings.System.MMS_AUTO_RETRIEVAL_ON_ROAMING,
-                    mMmsRetrievalDuringRoamingPref.isChecked() ? 1 : 0);
-
-        } else if (preference == mMmsAutoRetrievialPref) {
-            // Update the value in Settings.System
-            boolean checked = mMmsAutoRetrievialPref.isChecked();
-            Settings.System.putInt(getContentResolver(), Settings.System.MMS_AUTO_RETRIEVAL,
-                    checked ? 1 : 0);
-            if (checked) {
-                startMmsDownload();
-            }
-
-        } else if (preference == mEnableMultipartSMS) {
-            //should be false when the checkbox is checked
-            MmsConfig.setEnableMultipartSMS(!mEnableMultipartSMS.isChecked());
 
         } else if (preference == mEnablePrivacyModePref) {
             // Update the actual "enable private mode" value that is stored in secure settings.
@@ -483,9 +474,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
 
             // Update "enable quickmessage" checkbox state
             mEnableQuickMessagePref.setEnabled(!mEnablePrivacyModePref.isChecked());
-
-            // Update "enable dark theme" checkbox state
-            mEnableQmDarkThemePref.setEnabled(!mEnablePrivacyModePref.isChecked());
 
         } else if (preference == mEnableQuickMessagePref) {
             // Update the actual "enable quickmessage" value that is stored in secure settings.
@@ -499,9 +487,19 @@ public class MessagingPreferenceActivity extends PreferenceActivity
             // Update the actual "enable close all" value that is stored in secure settings.
             enableQmCloseAll(mEnableQmCloseAllPref.isChecked(), this);
 
-        } else if (preference == mEnableQmDarkThemePref) {
-            // Update the actual "enable dark theme" value that is stored in secure settings.
-            enableQmDarkTheme(mEnableQmDarkThemePref.isChecked(), this);
+        } else if (preference == mMmsRetrievalDuringRoamingPref) {
+            // Update the value in Settings.System
+            Settings.System.putInt(getContentResolver(), Settings.System.MMS_AUTO_RETRIEVAL_ON_ROAMING,
+                    mMmsRetrievalDuringRoamingPref.isChecked() ? 1 : 0);
+
+        } else if (preference == mMmsAutoRetrievialPref) {
+            // Update the value in Settings.System
+            boolean checked = mMmsAutoRetrievialPref.isChecked();
+            Settings.System.putInt(getContentResolver(), Settings.System.MMS_AUTO_RETRIEVAL,
+                    checked ? 1 : 0);
+            if (checked) {
+                startMmsDownload();
+            }
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -530,18 +528,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
                 setMmsDisplayLimit();
             }
     };
-
-    NumberPickerDialog.OnNumberSetListener mSmsToMmsTextThresholdListener =
-            new NumberPickerDialog.OnNumberSetListener() {
-                public void onNumberSet(int limit) {
-                    SharedPreferences.Editor editPrefs =
-                            PreferenceManager.getDefaultSharedPreferences(MessagingPreferenceActivity.this).edit();
-                    editPrefs.putInt("pref_key_sms_SmsToMmsTextThreshold", limit);
-                    editPrefs.apply();
-                    MmsConfig.setSmsToMmsTextThreshold(limit+1);
-                    setSmsToMmsTextThreshold();
-                }
-        };
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -642,20 +628,6 @@ public class MessagingPreferenceActivity extends PreferenceActivity
         editor.apply();
     }
 
-    public static void enableQmDarkTheme(boolean enabled, Context context) {
-        SharedPreferences.Editor editor =
-            PreferenceManager.getDefaultSharedPreferences(context).edit();
-        editor.putBoolean(MessagingPreferenceActivity.QM_DARK_THEME_ENABLED, enabled);
-        editor.apply();
-    }
-
-    public static boolean getQmDarkThemeEnabled(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean qmDarkThemeEnabled =
-            prefs.getBoolean(MessagingPreferenceActivity.QM_DARK_THEME_ENABLED, true);
-        return qmDarkThemeEnabled;
-    }
-
     public static boolean getGroupMMSEnabled(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         boolean groupMMSEnabled = prefs.getBoolean(MessagingPreferenceActivity.GROUP_MMS_MODE, false);
@@ -678,16 +650,46 @@ public class MessagingPreferenceActivity extends PreferenceActivity
     }
 
     private void registerListeners() {
-        mRingtonePref.setOnPreferenceChangeListener(this);
+        mVibrateWhenPref.setOnPreferenceChangeListener(this);
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         boolean result = false;
-        if (preference == mRingtonePref) {
-            setRingtoneSummary((String)newValue);
+        if (preference == mVibrateWhenPref) {
+            adjustVibrateSummary((String)newValue);
             result = true;
+        } else if (preference == mInputTypePref) {
+            adjustInputTypeSummary((String)newValue);
+            result = true;
+        } else if (preference == mSignature) {
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(MSG_SIGNATURE, (String) newValue);
+            editor.commit();
+            mSignature.setText(sp.getString(MSG_SIGNATURE, ""));
         }
         return result;
+    }
+
+    private void adjustVibrateSummary(String value) {
+        int len = mVibrateValues.length;
+        for (int i = 0; i < len; i++) {
+            if (mVibrateValues[i].equals(value)) {
+                mVibrateWhenPref.setSummary(mVibrateEntries[i]);
+                return;
+            }
+        }
+        mVibrateWhenPref.setSummary(null);
+    }
+
+    private void adjustInputTypeSummary(String value) {
+        int len = mInputTypeValues.length;
+        for (int i = 0; i < len; i++) {
+            if (mInputTypeValues[i].equals(value)) {
+                mInputTypePref.setSummary(mInputTypeEntries[i]);
+                return;
+            }
+        }
+        mInputTypePref.setSummary(R.string.pref_keyboard_unknown);
     }
 
     // For the group mms feature to be enabled, the following must be true:

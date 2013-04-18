@@ -20,6 +20,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.android.mms">
 
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="16" />
+
     <original-package android:name="com.android.mms" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -122,6 +126,11 @@
                <data android:mimeType="image/*" />
            </intent-filter>
            <intent-filter>
+               <action android:name="android.intent.action.SEND" />
+               <category android:name="android.intent.category.DEFAULT" />
+               <data android:mimeType="text/plain" />
+           </intent-filter>
+           <intent-filter>
                <action android:name="android.intent.action.SEND_MULTIPLE" />
                <category android:name="android.intent.category.DEFAULT" />
                <data android:mimeType="image/*" />
@@ -203,8 +212,18 @@
                 <action android:name="android.intent.action.CONTENT_CHANGED" />
             </intent-filter>
             <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+        </receiver>
+
+        <receiver android:name=".transaction.MmsSystemPushMsgReceiver"
+                  android:permission="android.permission.MMS_PUSH">
+                  <intent-filter>
+                      <action android:name="android.intent.action.MMS_PUSH" />
+                  </intent-filter>
         </receiver>
 
         <activity android:name=".ui.ManageSimMessages"
@@ -334,32 +353,21 @@
                  android:permission="android.permission.BIND_REMOTEVIEWS"
                  android:exported="false" />
 
+        <!-- Templates support -->
         <activity
             android:name=".templates.TemplatesListActivity"
             android:theme="@style/MmsHoloTheme"
             android:label="@string/template_list_title" >
         </activity>
+
         <activity android:name=".templates.TemplateEditor"
             android:theme="@style/MmsHoloTheme"
             android:label="@string/template_new_title">
         </activity>
-        <activity
-            android:name=".themes.ThemesConversationList"
-            android:theme="@style/MmsHoloTheme"
-            android:label="@string/themes_conv_list_title" >
-        </activity>
-        <activity
-            android:name=".themes.ThemesMessageList"
-            android:theme="@style/MmsHoloTheme"
-            android:label="@string/themes_msg_list_title" >
-        </activity>
-        <activity
-            android:name=".themes.ThemesWidgets"
-            android:theme="@style/MmsHoloTheme"
-            android:label="@string/themes_widget_title" >
-        </activity>
+
         <provider
             android:name=".templates.TemplatesProvider"
+            android:exported="true"
             android:authorities="com.android.cm.mms" />
 
         <!-- QuickMessage support -->
@@ -384,6 +392,5 @@
 
          <receiver android:name=".quickmessage.ClearAllReceiver" />
 
-    </application>
-
+        </application>
 </manifest>

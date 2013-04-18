@@ -81,8 +81,6 @@ import com.android.mms.MmsConfig;
 import com.android.mms.R;
 import com.android.mms.data.Contact;
 import com.android.mms.data.Conversation;
-import com.android.mms.themes.Constants;
-import com.android.mms.themes.Preferences;
 import com.android.mms.templates.TemplatesProvider.Template;
 import com.android.mms.transaction.MessagingNotification;
 import com.android.mms.transaction.MessagingNotification.NotificationInfo;
@@ -155,7 +153,7 @@ public class QuickMessagePopup extends Activity implements
     private boolean mWakeAndUnlock = false;
     private boolean mDarkTheme = false;
     private boolean mFullTimestamp = false;
-    private boolean mStripUnicode = false;
+    private int mUnicodeStripping = MessagingPreferenceActivity.UNICODE_STRIPPING_LEAVE_INTACT;
     private boolean mEnableEmojis = false;
     private int mInputMethod;
 
@@ -190,8 +188,8 @@ public class QuickMessagePopup extends Activity implements
         mFullTimestamp = prefs.getBoolean(MessagingPreferenceActivity.FULL_TIMESTAMP, false);
         mCloseClosesAll = prefs.getBoolean(MessagingPreferenceActivity.QM_CLOSE_ALL_ENABLED, false);
         mWakeAndUnlock = prefs.getBoolean(MessagingPreferenceActivity.QM_LOCKSCREEN_ENABLED, false);
-        mDarkTheme = prefs.getBoolean(MessagingPreferenceActivity.QM_DARK_THEME_ENABLED, false);
-        mStripUnicode = prefs.getBoolean(MessagingPreferenceActivity.STRIP_UNICODE, false);
+        mUnicodeStripping = prefs.getInt(MessagingPreferenceActivity.UNICODE_STRIPPING_VALUE,
+                MessagingPreferenceActivity.UNICODE_STRIPPING_LEAVE_INTACT);
         mEnableEmojis = prefs.getBoolean(MessagingPreferenceActivity.ENABLE_EMOJIS, false);
         mInputMethod = Integer.parseInt(prefs.getString(MessagingPreferenceActivity.INPUT_TYPE,
                 Integer.toString(InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)));
@@ -330,13 +328,6 @@ public class QuickMessagePopup extends Activity implements
                 updateMessageCounter();
             }
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
-        clearNotification(false);
-        finish();
     }
 
     @Override
@@ -536,11 +527,20 @@ public class QuickMessagePopup extends Activity implements
             final EditText editText = (EditText) mEmojiView.findViewById(R.id.emoji_edit_text);
             final Button button = (Button) mEmojiView.findViewById(R.id.emoji_button);
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            final boolean useSoftBankEmojiEncoding = prefs.getBoolean(MessagingPreferenceActivity.SOFTBANK_EMOJIS, false);
+
             gridView.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    // We use the new unified Unicode 6.1 emoji code points
-                    CharSequence emoji = EmojiParser.getInstance().addEmojiSpans(EmojiParser.mEmojiTexts[position]);
+                    // We use the new unified Unicode 6.1 emoji code points by default
+                    CharSequence emoji;
+                    if (useSoftBankEmojiEncoding) {
+                        emoji = EmojiParser.getInstance().addEmojiSpans(EmojiParser.mSoftbankEmojiTexts[position]);
+                    } else {
+                        emoji = EmojiParser.getInstance().addEmojiSpans(EmojiParser.mEmojiTexts[position]);
+                    }
                     editText.append(emoji);
+
                 }
             });
 
@@ -845,11 +845,10 @@ public class QuickMessagePopup extends Activity implements
         // Get the emojis  preference
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         boolean enableEmojis = prefs.getBoolean(MessagingPreferenceActivity.ENABLE_EMOJIS, false);
-        final int recvColor = Preferences.receivedSmileyColor(prefs);
 
         if (!TextUtils.isEmpty(message)) {
             SmileyParser parser = SmileyParser.getInstance();
-            CharSequence smileyBody = parser.addSmileySpansColored(message, recvColor);
+            CharSequence smileyBody = parser.addSmileySpans(message);
             if (enableEmojis) {
                 EmojiParser emojiParser = EmojiParser.getInstance();
                 smileyBody = emojiParser.addEmojiSpans(smileyBody);
@@ -949,13 +948,19 @@ public class QuickMessagePopup extends Activity implements
      * that would switch the message from 7-bit GSM encoding (160 char limit)
      * to 16-bit Unicode encoding (70 char limit).
      */
-    private class StripUnicode implements InputFilter {
+    private static class StripUnicode implements InputFilter {
 
         private CharsetEncoder gsm =
             Charset.forName("gsm-03.38-2000").newEncoder();
 
         private Pattern diacritics =
             Pattern.compile("\\p{InCombiningDiacriticalMarks}");
+
+        private boolean mStripNonDecodableOnly = false;
+
+        StripUnicode(boolean stripping) {
+            mStripNonDecodableOnly = stripping;
+        }
 
         public CharSequence filter(CharSequence source, int start, int end,
                                    Spanned dest, int dstart, int dend) {
@@ -967,7 +972,7 @@ public class QuickMessagePopup extends Activity implements
                 char c = source.charAt(i);
 
                 // Character is encodable by GSM, skip filtering
-                if (gsm.canEncode(c)) {
+                if (mStripNonDecodableOnly && gsm.canEncode(c)) {
                     output.append(c);
                 }
                 // Character requires Unicode, try to replace it
@@ -1146,8 +1151,11 @@ public class QuickMessagePopup extends Activity implements
 
                 LengthFilter lengthFilter = new LengthFilter(MmsConfig.getMaxTextLimit());
 
-                if (mStripUnicode) {
-                    qmReplyText.setFilters(new InputFilter[] { new StripUnicode(), lengthFilter });
+                if (mUnicodeStripping != MessagingPreferenceActivity.UNICODE_STRIPPING_LEAVE_INTACT) {
+                    boolean stripNonDecodableOnly = mUnicodeStripping == MessagingPreferenceActivity
+                            .UNICODE_STRIPPING_NON_DECODABLE;
+                    qmReplyText.setFilters(new InputFilter[] { new StripUnicode(stripNonDecodableOnly),
+                            lengthFilter });
                 } else {
                     qmReplyText.setFilters(new InputFilter[] { lengthFilter });
                 }
@@ -1198,6 +1206,11 @@ public class QuickMessagePopup extends Activity implements
          * @param qm - qm we are replying to (for sender details)
          */
         private void sendMessageAndMoveOn(String message, QuickMessage qm) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            String mSignature = prefs.getString(MessagingPreferenceActivity.MSG_SIGNATURE, "");
+            if (!mSignature.isEmpty()) {
+                message = message + "\n" + mSignature;
+            }
             sendQuickMessage(message, qm);
             // Close the current QM and move on
             int numMessages = mMessageList.size();
