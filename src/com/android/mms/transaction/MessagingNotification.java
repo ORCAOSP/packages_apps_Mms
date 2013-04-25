@@ -797,7 +797,7 @@ public class MessagingNotification {
             Bitmap attachmentBitmap,
             Contact contact,
             int attachmentType) {
-        if (MmsConfig.getSprintVVMEnabled() && address.contentEquals("9016")) {
+        if (MmsConfig.isSuppressedSprintVVM(address)) {
             return null;
         }
         Intent clickIntent = ComposeMessageActivity.createIntent(context, threadId);
@@ -972,31 +972,27 @@ public class MessagingNotification {
         int defaults = 0;
 
         if (isNew) {
-            String vibrateWhen;
-            if (sp.contains(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_WHEN)) {
-                vibrateWhen =
-                    sp.getString(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_WHEN, null);
-            } else if (sp.contains(MessagingPreferenceActivity.NOTIFICATION_VIBRATE)) {
-                vibrateWhen =
-                        sp.getBoolean(MessagingPreferenceActivity.NOTIFICATION_VIBRATE, false) ?
-                    context.getString(R.string.prefDefault_vibrate_true) :
-                    context.getString(R.string.prefDefault_vibrate_false);
-            } else {
-                vibrateWhen = context.getString(R.string.prefDefault_vibrateWhen);
-            }
-
             TelephonyManager mTM = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             boolean callStateIdle = mTM.getCallState() == TelephonyManager.CALL_STATE_IDLE;
             boolean vibrateOnCall = sp.getBoolean(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_CALL, true);
 
-            boolean vibrateAlways = vibrateWhen.equals("always");
-            boolean vibrateSilent = vibrateWhen.equals("silent");
-            AudioManager audioManager =
-                (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-            boolean nowSilent =
-                audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
-
-            if ((vibrateAlways || vibrateSilent && nowSilent) && (vibrateOnCall || (!vibrateOnCall && callStateIdle))) {
+            boolean vibrate = false;
+            if (sp.contains(MessagingPreferenceActivity.NOTIFICATION_VIBRATE)) {
+                // The most recent change to the vibrate preference is to store a boolean
+                // value in NOTIFICATION_VIBRATE. If prefs contain that preference, use that
+                // first.
+                vibrate = sp.getBoolean(MessagingPreferenceActivity.NOTIFICATION_VIBRATE,
+                        false);
+            } else if (sp.contains(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_WHEN)) {
+                // This is to support the pre-JellyBean MR1.1 version of vibrate preferences
+                // when vibrate was a tri-state setting. As soon as the user opens the Messaging
+                // app's settings, it will migrate this setting from NOTIFICATION_VIBRATE_WHEN
+                // to the boolean value stored in NOTIFICATION_VIBRATE.
+                String vibrateWhen =
+                        sp.getString(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_WHEN, null);
+                vibrate = "always".equals(vibrateWhen);
+            }
+            if (vibrate && (vibrateOnCall || (!vibrateOnCall && callStateIdle))) {
                 /* WAS: notificationdefaults |= Notification.DEFAULT_VIBRATE;*/
                 String mVibratePattern = "custom".equals(sp.getString(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_PATTERN, null))
                         ? sp.getString(MessagingPreferenceActivity.NOTIFICATION_VIBRATE_PATTERN_CUSTOM, "0,1200")
@@ -1065,7 +1061,7 @@ public class MessagingNotification {
                 mrIntent.putExtra(QmMarkRead.SMS_THREAD_ID, mostRecentNotification.mThreadId);
                 PendingIntent mrPendingIntent = PendingIntent.getBroadcast(context, 0, mrIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
-                noti.addAction(R.drawable.ic_menu_done_holo_dark, markReadText, mrPendingIntent);
+                noti.addAction(R.drawable.ic_mark_read_holo_dark, markReadText, mrPendingIntent);
 
                 // Add the Call action
                 CharSequence callText = context.getText(R.string.menu_call);
@@ -1455,7 +1451,15 @@ public class MessagingNotification {
 
         try {
             if (cursor.moveToFirst()) {
-                long threadId = cursor.getLong(cursor.getColumnIndex(Sms.THREAD_ID));
+                int columnIndex = cursor.getColumnIndex(Sms.THREAD_ID);
+                if (columnIndex < 0) {
+                    if (DEBUG) {
+                        Log.d(TAG, "getSmsThreadId uri: " + uri +
+                                " Couldn't read row 0, col -1! returning THREAD_NONE");
+                    }
+                    return THREAD_NONE;
+                }
+                long threadId = cursor.getLong(columnIndex);
                 if (DEBUG) {
                     Log.d(TAG, "getSmsThreadId uri: " + uri +
                             " returning threadId: " + threadId);
@@ -1498,7 +1502,15 @@ public class MessagingNotification {
 
         try {
             if (cursor.moveToFirst()) {
-                long threadId = cursor.getLong(cursor.getColumnIndex(Mms.THREAD_ID));
+                int columnIndex = cursor.getColumnIndex(Mms.THREAD_ID);
+                if (columnIndex < 0) {
+                    if (DEBUG) {
+                        Log.d(TAG, "getThreadId uri: " + uri +
+                                " Couldn't read row 0, col -1! returning THREAD_NONE");
+                    }
+                    return THREAD_NONE;
+                }
+                long threadId = cursor.getLong(columnIndex);
                 if (DEBUG) {
                     Log.d(TAG, "getThreadId uri: " + uri +
                             " returning threadId: " + threadId);
