@@ -299,6 +299,9 @@ public class MessagingNotification {
         if (delivery != null) {
             delivery.deliver(context, isStatusMessage);
         }
+
+        notificationSet.clear();
+        threads.clear();
     }
 
     /**
@@ -1162,6 +1165,10 @@ public class MessagingNotification {
                         inboxStyle.addLine(info.formatInboxMessage(context));
                     }
                     notification = inboxStyle.build();
+
+                    uniqueThreads.clear();
+                    mostRecentNotifPerThread.clear();
+
                     if (DEBUG) {
                         Log.d(TAG, "updateNotification: multi messages," +
                                 " showing inboxStyle notification");
@@ -1174,6 +1181,8 @@ public class MessagingNotification {
             if (qmPopupEnabled && qmIntent != null) {
                 TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
                 if (tm.getCallState() == TelephonyManager.CALL_STATE_IDLE && !ConversationList.mIsRunning && !ComposeMessageActivity.mIsRunning) {
+                    // Since a QM Popup may wake and unlock we need to prevent the light from being dismissed
+                    notification.flags |= Notification.FLAG_FORCE_LED_SCREEN_OFF;
 
                     // Show the popup
                     context.startActivity(qmIntent);
