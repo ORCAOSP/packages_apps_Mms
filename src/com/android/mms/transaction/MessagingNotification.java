@@ -874,7 +874,8 @@ public class MessagingNotification {
         NotificationInfo mostRecentNotification = notificationSet.first();
 
         final Notification.Builder noti = new Notification.Builder(context)
-                .setWhen(mostRecentNotification.mTimeMillis);
+                .setWhen(mostRecentNotification.mTimeMillis)
+                .setNumber(messageCount);
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         boolean privacyMode = sp.getBoolean(MessagingPreferenceActivity.PRIVACY_MODE_ENABLED, false);
@@ -1181,9 +1182,6 @@ public class MessagingNotification {
             if (qmPopupEnabled && qmIntent != null) {
                 TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
                 if (tm.getCallState() == TelephonyManager.CALL_STATE_IDLE && !ConversationList.mIsRunning && !ComposeMessageActivity.mIsRunning) {
-                    // Since a QM Popup may wake and unlock we need to prevent the light from being dismissed
-                    notification.flags |= Notification.FLAG_FORCE_LED_SCREEN_OFF;
-
                     // Show the popup
                     context.startActivity(qmIntent);
                 }
